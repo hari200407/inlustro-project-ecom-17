@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown with Checkboxes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <center>
+        <div class="dropdown">
+        <button onclick="toggleDropdown()" class="dropbtn">Select Options</button>
+        <div id="myDropdown" class="dropdown-content">
+            <label><input type="checkbox" class="option" value="Option 1"> Option 1</label>
+            <label><input type="checkbox" class="option" value="Option 2"> Option 2</label>
+            <label><input type="checkbox" class="option" value="Option 3"> Option 3</label>
+        </div>
+    </div>
+
+    <button onclick="getSelectedOptions()">Get Selected Options</button>
+    <button onclick="createTextBoxes()">Create Text Boxes</button>
+
+    <div id="text-boxes-container"></div>
