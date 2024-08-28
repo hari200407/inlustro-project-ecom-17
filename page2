@@ -65,7 +65,7 @@
                     const selectorDiv = document.createElement('div');
 
                     const label = document.createElement('label');
-                    label.innerHTML = 'Select Chemical ${i + 1}:';
+                    label.innerHTML = `Select Chemical ${i + 1}:`;
                     selectorDiv.appendChild(label);
 
                     const select = document.createElement('select');
@@ -100,7 +100,7 @@
                     chemicalBlock.className = 'chemical-block';
 
                     const label = document.createElement('h3');
-                    label.innerHTML = 'Chemical ${i + 1}: ${selectedChemical}';
+                    label.innerHTML = `Chemical ${i + 1}: ${selectedChemical}`;
                     chemicalBlock.appendChild(label);
 
                     const sellerNameLabel = document.createElement('label');
@@ -159,7 +159,7 @@
                     unitCheckboxGroup.appendChild(gmsCheckbox);
 
                     const gmsLabel = document.createElement('label');
-                    gmsLabel.htmlFor = 'gms${i + 1}';
+                    gmsLabel.htmlFor = `gms${i + 1}`;
                     gmsLabel.innerText = 'gms';
                     unitCheckboxGroup.appendChild(gmsLabel);
 
