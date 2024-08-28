@@ -58,7 +58,7 @@
 <body>
     <div class="container">
         <h2>Final Product Details</h2>
-        <form id="finalProductForm">
+        <form id="finalProductForm" action="page4.html">
             <!-- Displaying final product choice -->
             <div class="field-group">
                 <label id="finalProductLabel">Final Product: <span id="chemicalNames"></span></label>
