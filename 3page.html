@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Product Details</title>
+    <style>
+        .container {
+            width: 50%;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .field-group {
+            margin-bottom: 15px;
+        }
+        .field-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .field-group input[type="text"], .field-group input[type="date"], .field-group input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .field-group button {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .field-group button:hover {
+            background-color: #45a049;
+        }
+        .submit-button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .submit-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Final Product Details</h2>
+        <form id="finalProductForm" action="page4.html">
+            <!-- Displaying final product choice -->
+            <div class="field-group">
+                <label id="finalProductLabel">Final Product: <span id="chemicalNames"></span></label>
+            </div>
+            
+            <!-- Input for number of final products -->
+            <div class="field-group">
+                <label id="finalProductCountLabel">Number of Final Products:</label>
+                <input type="number" id="finalProductCount" name="finalProductCount" min="1" required>
+                <button type="button" onclick="generateProductFields()">Enter</button>
+            </div>
+
+            <!-- Placeholder for dynamic product fields -->
+            <div id="productFields"></div>
+
+            <!-- Submit button -->
+            <button type="submit" class="submit-button" id="submitBtn" disabled>Submit</button>
+            <!-- Reset button -->
+            <button type="button" class="submit-button" id="resetBtn">Reset</button>
+
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Retrieve selected chemicals from session storage
+            const selectedChemicals = JSON.parse(sessionStorage.getItem('chemicalDetails'));
+            const chemicalNamesSpan = document.getElementById('chemicalNames');
+            if (selectedChemicals) {
+                const chemicalNames = selectedChemicals.map(item => item.chemical);
+                chemicalNamesSpan.textContent = chemicalNames.join(', ');
+
+                // Update label for "Number of Final Products" with the first chemical name
+                const finalProductCountLabel = document.getElementById('finalProductCountLabel');
+                finalProductCountLabel.textContent = `Number of Final Products: ${chemicalNames[0]}`;
+            } else {
+                chemicalNamesSpan.textContent = 'No chemicals selected';
+            }
+
+            // Add event listeners to the form elements
+            document.getElementById('finalProductCount').addEventListener('input', validateForm);
+            document.getElementById('finalProductForm').addEventListener('input', validateForm);
+
+            // Add an event listener to the form for Enter key press
+            document.getElementById('finalProductForm').addEventListener('keydown', function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevent the form from submitting
+                    const activeElement = document.activeElement;
+                    
+                    if (activeElement.id === 'finalProductCount') {
+                        generateProductFields();
+                    } else if (activeElement.name && activeElement.name.startsWith('processCount')) {
+                        const productIndex = activeElement.id.replace('processCount', '');
+                        generateProcessFields(parseInt(productIndex));
+                    }
+                }
+            });
+        });
+
+        // Function to generate fields for each final product
+        function generateProductFields() {
+            const finalProductCount = parseInt(document.getElementById('finalProductCount').value);
+            const productFields = document.getElementById('productFields');
+            productFields.innerHTML = '';  // Clear any existing fields
+
+            if (finalProductCount > 0) {
+                for (let i = 0; i < finalProductCount; i++) {
+                    const productFieldGroup = document.createElement('div');
+                    productFieldGroup.className = 'field-group';
+
+                    const label = document.createElement('label');
+                    label.innerHTML = `Final Product ${i + 1}`;
+                    productFieldGroup.appendChild(label);
+
+                    const processLabel = document.createElement('label');
+                    processLabel.innerHTML = `Number of Processes for Final Product ${i + 1}:`;
+                    productFieldGroup.appendChild(processLabel);
+
+                    const processInput = document.createElement('input');
+                    processInput.type = 'number';
+                    processInput.name = `processCount${i + 1}`;
+                    processInput.min = '1';
+                    processInput.id = `processCount${i + 1}`;
+                    processInput.required = true;
+                    processInput.onchange = function() {
+                        generateProcessFields(i + 1);
+                    };
+                    productFieldGroup.appendChild(processInput);
+
+                    // Placeholder for dynamic process fields
+                    const processFields = document.createElement('div');
+                    processFields.id = `processFields${i + 1}`;
+                    productFieldGroup.appendChild(processFields);
+
+                    // Add fields for Expected Start Date, Expected Completion Date, and Amount of Chemicals Used
+                    const chemicalsUsedLabel = document.createElement('label');
+                    chemicalsUsedLabel.innerHTML = `Amount of Chemicals Used for Final Product ${i + 1}:`;
+                    productFieldGroup.appendChild(chemicalsUsedLabel);
+
+                    const chemicalsUsedInput = document.createElement('input');
+                    chemicalsUsedInput.type = 'text';
+                    chemicalsUsedInput.name = `finalProduct${i + 1}_chemicalsUsed`;
+                    chemicalsUsedInput.placeholder = `Enter amount of chemicals used for Final Product ${i + 1}`;
+                    chemicalsUsedInput.required = true;
+                    productFieldGroup.appendChild(chemicalsUsedInput);
+
+                    const unitCheckboxGroup = document.createElement('div');
+                    unitCheckboxGroup.className = 'checkbox-group';
+
+                    const kgCheckbox = document.createElement('input');
+                    kgCheckbox.type = 'checkbox';
+                    kgCheckbox.id = `kg${i + 1}`;
+                    kgCheckbox.value = 'kg';
+                    unitCheckboxGroup.appendChild(kgCheckbox);
+
+                    const kgLabel = document.createElement('label');
+                    kgLabel.htmlFor = `kg${i + 1}`;
+                    kgLabel.innerText = 'kg';
+                    unitCheckboxGroup.appendChild(kgLabel);
+
+                    const gmsCheckbox = document.createElement('input');
+                    gmsCheckbox.type = 'checkbox';
+                    gmsCheckbox.id = `gms${i + 1}`;
+                    gmsCheckbox.value = 'gms';
+                    unitCheckboxGroup.appendChild(gmsCheckbox);
+
+                    const gmsLabel = document.createElement('label');
+                    gmsLabel.htmlFor = `gms${i + 1}`;
+                    gmsLabel.innerText = 'gms';
+                    unitCheckboxGroup.appendChild(gmsLabel);
+
+                    productFieldGroup.appendChild(unitCheckboxGroup);
+
+                    const startDateLabel = document.createElement('label');
+                    startDateLabel.innerHTML = `Expected Starting Date for Final Product ${i + 1}:`;
+                    productFieldGroup.appendChild(startDateLabel);
+
+                    const startDateInput = document.createElement('input');
+                    startDateInput.type = 'date';
+                    startDateInput.name = `finalProduct${i + 1}_startDate`;
+                    startDateInput.required = true;
+                    productFieldGroup.appendChild(startDateInput);
+
+                    const completionDateLabel = document.createElement('label');
+                    completionDateLabel.innerHTML = `Expected Completion Date for Final Product ${i + 1}:`;
+                    productFieldGroup.appendChild(completionDateLabel);
+
+                    const completionDateInput = document.createElement('input');
+                    completionDateInput.type = 'date';
+                    completionDateInput.name = `finalProduct${i + 1}_completionDate`;
+                    completionDateInput.required = true;
+                    productFieldGroup.appendChild(completionDateInput);
+
+                    productFields.appendChild(productFieldGroup);
+                }
+                validateForm(); // Validate form after adding fields
+            }
+        }
+
+        // Function to generate process fields based on the number of processes for each final product
+        function generateProcessFields(productIndex) {
+            const processCount = parseInt(document.getElementById(`processCount${productIndex}`).value);
+            const processFields = document.getElementById(`processFields${productIndex}`);
+            processFields.innerHTML = '';  // Clear any existing fields
+
+            if (processCount > 0) {
+                for (let i = 0; i < processCount; i++) {
+                    const fieldGroup = document.createElement('div');
+                    fieldGroup.className = 'field-group';
+
+                    const label = document.createElement('label');
+                    label.innerHTML = `Process ${i + 1} ${i + 1 === processCount ? '(Final Product)' : ''}:`;
+                    fieldGroup.appendChild(label);
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.name = `finalProduct${productIndex}_process${i + 1}`;
+                    input.placeholder = `Enter details for Process ${i + 1}`;
+                    input.required = true;
+                    fieldGroup.appendChild(input);
+
+                    processFields.appendChild(fieldGroup);
+                }
+                validateForm(); // Validate form after adding fields
+            }
+        }
+
+        // Function to validate the form and enable/disable the submit button
+        function validateForm() {
+            const form = document.getElementById('finalProductForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const allFields = form.querySelectorAll('input[required]');
+            let isValid = true;
+
+            allFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = 'red';  // Highlight the missing field
+                } else {
+                    field.style.borderColor = '';  // Reset the border color
+                }
+            });
+            submitBtn.disabled = !isValid;
+
+            if (isValid) {
+                storeFormData(); // Store form data in session storage when valid
+            }
+        }
+
+        // Store form data in session storage
+        function storeFormData() {
+            const finalProductCount = parseInt(document.getElementById('finalProductCount').value);
+            let productDetails = [];
+
+            for (let i = 1; i <= finalProductCount; i++) {
+                let processCount = parseInt(document.getElementById(`processCount${i}`).value);
+                let processes = [];
+
+                for (let j = 1; j <= processCount; j++) {
+                    let processDetail = document.querySelector(`input[name="finalProduct${i}_process${j}"]`).value;
+                    processes.push(processDetail);
+                }
+
+                let productData = {
+                    processCount: processCount,
+                    processes: processes,
+                    startDate: document.querySelector(`input[name="finalProduct${i}_startDate"]`).value,
+                    completionDate: document.querySelector(`input[name="finalProduct${i}_completionDate"]`).value,
+                    chemicalsUsed: document.querySelector(`input[name="finalProduct${i}_chemicalsUsed"]`).value,
+                    unit: document.getElementById(`kg${i}`).checked ? 'kg' : document.getElementById(`gms${i}`).checked ? 'gms' : 'unknown'
+                };
+                productDetails.push(productData);
+            }
+
+            sessionStorage.setItem('finalProductDetails', JSON.stringify(productDetails));
+        }
+
+        // Add event listener for Reset button
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            document.getElementById('finalProductCount').value = '';
+            document.getElementById('productFields').innerHTML = '';
+            document.getElementById('submitBtn').disabled = true;
+            sessionStorage.removeItem('finalProductDetails'); // Clear session storage for the final product details
+        });
+
+        function validateDates() {
+            const finalProductCount = parseInt(document.getElementById('finalProductCount').value);
+            let datesValid = true;
+            for (let i = 1; i <= finalProductCount; i++) {
+                const startDate = document.querySelector(`input[name="finalProduct${i}_startDate"]`).value;
+                const completionDate = document.querySelector(`input[name="finalProduct${i}_completionDate"]`).value;
+                if (new Date(completionDate) <= new Date(startDate)) {
+                    datesValid = false;
+                    alert(`Final Product ${i}: Completion Date must be after the Start Date.`);
+                    break;
+                }
+            }
+
+            return datesValid;
+        }
+
+        // Modify the submit event listener
+        document.getElementById('finalProductForm').addEventListener('submit', function(event) {
+            if (!validateDates()) {
+                event.preventDefault();  // Prevent form submission if dates are invalid
+            }
+        });
+    </script>
+</body>
+</html>
