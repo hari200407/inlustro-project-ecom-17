@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemicals Tracking Form</title>
+    <style>
+        /* ... existing styles ... */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chemicals Tracking Form</h1>
+
+        <!-- Step 1: Enter number of chemicals -->
+        <form id="chemicalForm" action="page3.html">
+            <label for="chemicalCount">Enter Number of chemicals you have purchased:</label>
+            <input type="number" id="chemicalCount" min="1" placeholder="Enter number" onchange="generateChemicalSelectors()">
+            
+            <!-- Chemical selectors will be dynamically added here -->
+            <div id="chemicalSelectors"></div>
+
+            <!-- Button to generate textboxes -->
+            <button type="button" onclick="generateTextBoxes()" disabled>Generate Chemical Details</button>
+
+            <!-- Chemical detail fields will be dynamically added here -->
+            <div id="chemicalFields"></div>
+
+            <!-- Buyer information -->
+            <div class="field-group">
+                <label for="buyerName">Buyer's Name:</label>
+                <input type="text" id="buyerName" placeholder="Enter buyer's name">
+            </div>
+            <div class="field-group">
+                <label for="buyerAddress">Buyer's Address:</label>
+                <input type="text" id="buyerAddress" placeholder="Enter buyer's address">
+            </div>
+
+            <!-- Button to store buyer details and proceed -->
+            <button type="button" id="submitButton" onclick="submitForm()" disabled>Submit</button>
+        </form>
+    </div>
+
+    <script>
+        const chemicals = [
+            "Methamphetamine Precursor",
+            "Ephedrine",
+            "Pseudoephedrine",
+            "Phenylacetone",
+            "Acetic Anhydride",
+            "Potassium Permanganate",
+            "Red Phosphorus"
+        ];
+
+        let chemicalDetails = [];
+        let buyerDetails = {};
+
+        function generateChemicalSelectors() {
+            const chemicalCount = parseInt(document.getElementById('chemicalCount').value);
+            const chemicalSelectors = document.getElementById('chemicalSelectors');
+            chemicalSelectors.innerHTML = '';
+
+            if (chemicalCount > 0) {
+                for (let i = 0; i < chemicalCount; i++) {
+                    const selectorDiv = document.createElement('div');
+
+                    const label = document.createElement('label');
+                    label.innerHTML = `Select Chemical ${i + 1}:`;
+                    selectorDiv.appendChild(label);
+
+                    const select = document.createElement('select');
+                    select.name = 'chemical${i + 1}';
+                    select.id = 'chemical${i + 1}';
+
+                    chemicals.forEach(chemical => {
+                        const option = document.createElement('option');
+                        option.value = chemical;
+                        option.text = chemical;
+                        select.appendChild(option);
+                    });
+
+                    selectorDiv.appendChild(select);
+                    chemicalSelectors.appendChild(selectorDiv);
+                }
+            }
+
+            enableGenerateButton();
+        }
+
+        function generateTextBoxes() {
+            const chemicalCount = parseInt(document.getElementById('chemicalCount').value);
+            const chemicalFields = document.getElementById('chemicalFields');
+            chemicalFields.innerHTML = '';
+
+            if (chemicalCount > 0) {
+                for (let i = 0; i < chemicalCount; i++) {
+                    const selectedChemical = document.getElementById('chemical${i + 1}').value;
+
+                    const chemicalBlock = document.createElement('div');
+                    chemicalBlock.className = 'chemical-block';
+
+                    const label = document.createElement('h3');
+                    label.innerHTML = `Chemical ${i + 1}: ${selectedChemical}`;
+                    chemicalBlock.appendChild(label);
+
+                    const sellerNameLabel = document.createElement('label');
+                    sellerNameLabel.innerHTML = "Seller's Name:";
+                    chemicalBlock.appendChild(sellerNameLabel);
+
+                    const sellerNameInput = document.createElement('input');
+                    sellerNameInput.type = 'text';
+                    sellerNameInput.id = 'sellerName${i + 1}';
+                    sellerNameInput.placeholder = "Enter seller company's name";
+                    sellerNameInput.oninput = checkFormCompletion;
+                    chemicalBlock.appendChild(sellerNameInput);
+
+                    const sellerAddressLabel = document.createElement('label');
+                    sellerAddressLabel.innerHTML = "Seller's Address:";
+                    chemicalBlock.appendChild(sellerAddressLabel);
+
+                    const sellerAddressInput = document.createElement('input');
+                    sellerAddressInput.type = 'text';
+                    sellerAddressInput.id = 'sellerAddress${i + 1}';
+                    sellerAddressInput.placeholder = "Enter seller company's address";
+                    sellerAddressInput.oninput = checkFormCompletion;
+                    chemicalBlock.appendChild(sellerAddressInput);
+
+                    const amountLabel = document.createElement('label');
+                    amountLabel.innerHTML = 'Amount Purchased:';
+                    chemicalBlock.appendChild(amountLabel);
+
+                    const amountInput = document.createElement('input');''
+                    amountInput.type = 'number';
+                    amountInput.id = 'amount${i + 1}';
+                    amountInput.placeholder = "Enter amount purchased";
+                    amountInput.oninput = checkFormCompletion;
+                    chemicalBlock.appendChild(amountInput);
+
+                    const unitCheckboxGroup = document.createElement('div');
+                    unitCheckboxGroup.className = 'checkbox-group';
+
+                    const kgCheckbox = document.createElement('input');
+                    kgCheckbox.type = 'checkbox';
+                    kgCheckbox.id = 'kg${i + 1}';
+                    kgCheckbox.value = 'kg';
+                    kgCheckbox.onclick = checkFormCompletion;
+                    unitCheckboxGroup.appendChild(kgCheckbox);
+
+                    const kgLabel = document.createElement('label');
+                    kgLabel.htmlFor = 'kg${i + 1}';
+                    kgLabel.innerText = 'kg';
+                    unitCheckboxGroup.appendChild(kgLabel);
+
+                    const gmsCheckbox = document.createElement('input');
+                    gmsCheckbox.type = 'checkbox';
+                    gmsCheckbox.id = 'gms${i + 1}';
+                    gmsCheckbox.value = 'gms';
+                    gmsCheckbox.onclick = checkFormCompletion;
+                    unitCheckboxGroup.appendChild(gmsCheckbox);
+
+                    const gmsLabel = document.createElement('label');
+                    gmsLabel.htmlFor = `gms${i + 1}`;
+                    gmsLabel.innerText = 'gms';
+                    unitCheckboxGroup.appendChild(gmsLabel);
+
+                    chemicalBlock.appendChild(unitCheckboxGroup);
+
+                    const dateLabel = document.createElement('label');
+                    dateLabel.innerHTML = 'Buying Date:';
+                    chemicalBlock.appendChild(dateLabel);
+
+                    const dateInput = document.createElement('input');
+                    dateInput.type = 'date';
+                    dateInput.id = 'buyingDate${i + 1}';
+                    dateInput.style.marginRight = '10px';
+                    dateInput.oninput = checkFormCompletion;
+                    chemicalBlock.appendChild(dateInput);
+
+                    chemicalFields.appendChild(chemicalBlock);
+                }
+            }
+
+            checkFormCompletion();
+        }
+
+        function checkFormCompletion() {
+            const chemicalCount = parseInt(document.getElementById('chemicalCount').value);
+
+            for (let i = 0; i < chemicalCount; i++) {
+                const sellerName = document.getElementById('sellerName${i + 1}').value;
+                const sellerAddress = document.getElementById('sellerAddress${i + 1}').value;
+                const amount = document.getElementById('amount${i + 1}').value;
+                const kgChecked = document.getElementById('kg${i + 1}').checked;
+                const gmsChecked = document.getElementById('gms${i + 1}').checked;
+                const buyingDate = document.getElementById('buyingDate${i + 1}').value;
+
+                if (!sellerName || !sellerAddress || !amount || (!kgChecked && !gmsChecked) || !buyingDate) {
+                    document.getElementById('submitButton').disabled = true;
+                    return;
+                }
+            }
+
+            const buyerName = document.getElementById('buyerName').value;
+            const buyerAddress = document.getElementById('buyerAddress').value;
+
+            document.getElementById('submitButton').disabled = !buyerName || !buyerAddress;
+        }
+
+        function enableGenerateButton() {
+            const chemicalCount = parseInt(document.getElementById('chemicalCount').value);
+            const generateButton = document.querySelector('button[onclick="generateTextBoxes()"]');
+
+            generateButton.disabled = isNaN(chemicalCount) || chemicalCount <= 0;
+        }
+
+        function storeChemicalDetails() {
+            const chemicalCount = parseInt(document.getElementById('chemicalCount').value);
+            chemicalDetails = [];
+
+            for (let i = 0; i < chemicalCount; i++) {
+                const selectedChemical = document.getElementById('chemical ${i + 1}'.value);
+                const sellerName = document.getElementById('sellerName ${i + 1}').value;
+                const sellerAddress = document.getElementById('sellerAddress ${i + 1}').value;
+                const amount = document.getElementById('amount ${i + 1}').value;
+                const kgChecked = document.getElementById('kg ${i + 1}').checked;
+                const gmsChecked = document.getElementById('gms ${i + 1}').checked;
+                const buyingDate = document.getElementById('buyingDate${i + 1}').value;
+
+                chemicalDetails.push({
+                    chemical: selectedChemical,
+                    sellerName: sellerName,
+                    sellerAddress: sellerAddress,
+                    amount: amount,
+                    unit: kgChecked ? 'kg' : gmsChecked ? 'gms' : 'unknown',
+                    buyingDate: buyingDate
+                });
+            }
+
+            sessionStorage.setItem('chemicalDetails', JSON.stringify(chemicalDetails));
+        }
+
+        function submitForm() {
+            storeChemicalDetails(); // Ensure chemical details are stored
+            const buyerName = document.getElementById('buyerName').value;
+            const buyerAddress = document.getElementById('buyerAddress').value;
+
+            buyerDetails = {
+                name: buyerName,
+                address: buyerAddress
+            };
+
+            sessionStorage.setItem('buyerDetails', JSON.stringify(buyerDetails));
+            window.location.href = 'page3.html'; // Replace with the actual URL of your next page
+        }
+
+        document.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('input', checkFormCompletion);
+        });
+    </script>
+</body>
+</html>
