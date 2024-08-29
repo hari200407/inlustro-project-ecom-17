@@ -284,7 +284,6 @@
         function storeChemicalDetails() {
             const chemicalCount = parseInt(document.getElementById('chemicalCount').value);
             chemicalDetails = [];
-
             for (let i = 0; i < chemicalCount; i++) {
                 const selectedChemical = document.getElementById(`chemical${i + 1}`).value;
                 const sellerName = document.getElementById(`sellerName${i + 1}`).value.trim();
@@ -293,7 +292,6 @@
                 const kgChecked = document.getElementById(`kg${i + 1}`).checked;
                 const gmsChecked = document.getElementById(`gms${i + 1}`).checked;
                 const buyingDate = document.getElementById(`buyingDate${i + 1}`).value.trim();
-
                 chemicalDetails.push({
                     chemical: selectedChemical,
                     sellerName: sellerName,
@@ -303,9 +301,11 @@
                     buyingDate: buyingDate
                 });
             }
-
+            const selectedChemicals = chemicalDetails.map(detail => detail.chemical);
+            sessionStorage.setItem('selectedChemicals', JSON.stringify(selectedChemicals));
             sessionStorage.setItem('chemicalDetails', JSON.stringify(chemicalDetails));
         }
+
 
         function submitForm() {
             storeChemicalDetails(); // Ensure chemical details are stored
